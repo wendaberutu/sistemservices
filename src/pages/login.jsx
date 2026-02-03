@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [show, setShow] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950">
@@ -11,7 +13,7 @@ export default function Login() {
         </div>
 
         <h2 className="text-center text-lg font-semibold">
-          Sistem Servis Keltronik
+          Sistem Servis Waleta
         </h2>
         <p className="text-center text-xs text-slate-400 mt-1 mb-6">
           Silahkan login untuk melanjutkan
@@ -50,7 +52,9 @@ export default function Login() {
           Pelanggan
         </p>
 
-        <button className="w-full py-2 rounded-xl border border-slate-600 hover:bg-slate-800/40">
+        <button
+         onClick={() => navigate("/scan-status")}
+         className="w-full py-2 rounded-xl border border-slate-600 hover:bg-slate-800/40">
           📷 Scan QR / Cek Status
         </button>
       </div>
