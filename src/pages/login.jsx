@@ -1,9 +1,53 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { authApi } from "../api/auth.api";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
+  const { setUser } = useAuth();
+
+  const handleLogin = async () => {
+    setError("");
+
+    if (!username || !password) {
+      setError("Username dan password wajib diisi");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // ⬇️ PERHATIKAN INI
+      await authApi.login({ username, password });
+
+      const res = await authApi.me();
+      setUser(res.data);
+
+      const roles = res.data.roles;
+
+      if (roles.includes("admin")) {
+        navigate("/admin");
+      } else if (roles.includes("verifier")) {
+        navigate("/verify");
+      } else {
+        navigate("/teknisi");
+      }
+    } catch (err) {
+      if (!err.response) {
+        setError("Server tidak dapat dihubungi");
+      } else {
+        setError(err.response.data.message || "Login gagal");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950">
@@ -19,10 +63,18 @@ export default function Login() {
           Silahkan login untuk melanjutkan
         </p>
 
+        {error && (
+          <div className="mb-4 text-sm text-red-400 text-center">
+            {error}
+          </div>
+        )}
+
         <div className="space-y-4">
           <div className="flex items-center bg-slate-950/60 rounded-xl px-3 py-2">
             <span className="mr-2 text-slate-400">👤</span>
             <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="bg-transparent outline-none text-sm w-full placeholder-slate-500"
               placeholder="Masukkan username"
             />
@@ -32,10 +84,13 @@ export default function Login() {
             <span className="mr-2 text-slate-400">🔒</span>
             <input
               type={show ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="bg-transparent outline-none text-sm w-full placeholder-slate-500"
               placeholder="Masukkan password"
             />
             <button
+              type="button"
               onClick={() => setShow(!show)}
               className="text-slate-400 hover:text-slate-200 text-sm"
             >
@@ -44,17 +99,22 @@ export default function Login() {
           </div>
         </div>
 
-        <button className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 font-semibold hover:opacity-90">
-          Login
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 font-semibold hover:opacity-90 disabled:opacity-60"
+        >
+          {loading ? "Loading..." : "Login"}
         </button>
 
         <p className="text-center text-xs text-slate-400 my-4">
-          Pelanggan
+          - User -
         </p>
 
         <button
-         onClick={() => navigate("/scan-status")}
-         className="w-full py-2 rounded-xl border border-slate-600 hover:bg-slate-800/40">
+          onClick={() => navigate("/scan-status")}
+          className="w-full py-2 rounded-xl border border-slate-600 hover:bg-slate-800/40"
+        >
           📷 Scan QR / Cek Status
         </button>
       </div>
