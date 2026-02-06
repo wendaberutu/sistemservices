@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); 
   const [loading, setLoading] = useState(true); 
 
-  const fetchme =async () => {
+  const fetchMe = async () => {
     try {
       const response = await authApi.me();
       setUser(response.data);
@@ -18,16 +18,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-useEffect(() => {
-    fetchme();
+  useEffect(() => {
+    fetchMe();
   }, []);
 
-    return (
-      <AuthContext.Provider value={{ user, setUser, loading }}>
-        {children}
-      </AuthContext.Provider>
-    );
+  const logout = () => {
+    setUser(null);
   };
+
+  return (
+    <AuthContext.Provider value={{ user, setUser, loading, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
 export const useAuth = () => {
   return useContext(AuthContext);
 };

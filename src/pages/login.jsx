@@ -36,7 +36,7 @@ export default function Login() {
       } else if (roles.includes("verifier")) {
         navigate("/verify");
       } else {
-        navigate("/teknisi");
+        navigate("/technician");
       }
     } catch (err) {
       if (!err.response) {
