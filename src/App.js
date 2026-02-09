@@ -1,8 +1,8 @@
 
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import AdminPage from "./pages/admin/admin.page"; 
-import TechnicianPage from "./pages/technician.page"
-import VerifyPage from "./pages/veryfy.page";
+import AdminPage from "./pages/admin/admin.page";
+import TechnicianPage from "./pages/technician/technician.page";
+import VerifyPage from "./pages/verifier/veryfy.page";
 import Login from "./pages/login";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";

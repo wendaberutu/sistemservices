@@ -1,60 +1,98 @@
-
-import { Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo_waleta3.png";
 
-const Sidebar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
-  return (
-    <div className="bg-gradient-to-b from-blue-900 to-blue-800 text-white w-64 p-6 min-h-screen shadow-lg">
-      <h2 className="text-2xl font-bold mb-8 flex items-center gap-2">
-        <span className="bg-blue-500 p-2 rounded">📋</span>
-        Menu
-      </h2>
-      <nav className="space-y-3">
-        <Link
-          to="#"
-          className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 transition font-semibold"
-        >
-          <span className="text-xl">📋</span>
-          <span>Daftar Layanan</span>
-        </Link>
-
-        <Link
-          to="#"
-          className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 transition font-semibold"
-        >
-          <span className="text-xl">✓</span>
-          <span>Tugas</span>
-        </Link>
-
-        <Link
-          to="#"
-          className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 transition font-semibold"
-        >
-          <span className="text-xl">📦</span>
-          <span>Stok Barang</span>
-        </Link>
-      </nav>
-
-      <hr className="my-6 border-blue-700" />
-
-      <button
-        onClick={handleLogout}
-        className="w-full flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-red-600 transition font-semibold text-left"
-      >
-        <span className="text-xl">🚪</span>
-        <span>Logout</span>
-      </button>
-    </div>
-  );
+const menuByRole = {
+  admin: [
+    { label: "Dashboard", to: "/admin", icon: "📊" },
+    { label: "Inventori", to: "/admin/inventory", icon: "📦" },
+    { label: "Tugas", to: "/admin/jobs", icon: "🛠️" },
+  ],
+  technician: [
+    { label: "Dashboard", to: "/technician", icon: "📊" },
+    { label: "Tugas Saya", to: "/technician/jobs", icon: "🛠️" },
+    { label: "Riwayat Pekerjaan", to: "/technician/history", icon: "📜" },
+  ],
+  verifier: [
+    { label: "Dashboard", to: "/verify", icon: "📊" },
+    { label: "Verifikasi Pekerjaan", to: "/verify/tasks", icon: "✅" },
+    { label: "Riwayat Verifikasi", to: "/verify/history", icon: "📜" },
+  ],
 };
 
-export default Sidebar;
+export default function AppSidebar({ isOpen }) {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { user } = useAuth();
+
+  const role = user?.roles?.[0];
+  const menus = menuByRole[role] || [];
+
+  return (
+    <aside
+      className={`min-h-screen bg-gradient-to-b from-[#0b1020] to-[#020617]
+      border-r border-slate-800
+      transition-all duration-300 flex flex-col shrink-0
+      ${isOpen ? "w-64" : "w-16"}`}
+    >
+      {/* HEADER */}
+      <div className="h-16 px-4 flex items-center gap-3 border-b border-slate-800 shrink-0">
+        <img
+          src={logo}
+          alt="Waleta"
+          className="h-7 w-auto rounded-full"
+        />
+
+        {isOpen && (
+          <div className="text-slate-200 leading-tight">
+            <div className="font-bold text-sm">WALETA</div>
+            <div className="text-xs text-slate-400">Sistem Servis</div>
+          </div>
+        )}
+      </div>
+
+      {/* MENU */}
+      <nav className="flex-1 py-2 overflow-hidden">
+        {menus.map((m) => {
+          const active = pathname === m.to;
+
+          return (
+            <button
+              key={m.to}
+              onClick={() => navigate(m.to)}
+              className={`group w-full flex items-center gap-2
+  px-2 py-2 mx-2 rounded-lg text-sm
+  transition-all duration-200
+  ${active
+                  ? "bg-[#0f2a56] text-[#4da3ff]"
+                  : "text-slate-300 hover:bg-[#0f2a56]"
+                }`}
+            >
+
+              {/* ICON */}
+              <span
+                className={`w-8 h-8 flex items-center justify-center rounded-lg text-base shrink-0
+  transition-all duration-200
+  ${active
+                    ? "bg-[#123d7a] text-[#4da3ff]"
+                    : "bg-[#0b1222] text-slate-400 group-hover:bg-[#123d7a] group-hover:text-[#4da3ff]"
+                  }`}
+              >
+                {m.icon}
+              </span>
+
+
+              {/* LABEL */}
+              {isOpen && (
+                 <span className="font-medium tracking-wide">
+                  {m.label}
+                </span>
+              )}
+
+            </button>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+}
